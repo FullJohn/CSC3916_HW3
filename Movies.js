@@ -12,7 +12,7 @@ try {
 
 var MovieSchema = new Schema({
     id: {type: int, required: true, index: {unique: true }},
-    title: {type: String, required: true, index: {unique: true }},
+    title: {type: String, required: true},
     year: {type: String},
     genre: {type: String},
     actors: {type: [{name: {type: String, required: true},
