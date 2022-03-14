@@ -2,5 +2,5 @@
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/5676d3dfc9ff43342a39?action=collection%2Fimport)
 
-[React Site]https://jfull-hw5.herokuapp.com/
-[API Site]https://jfull-api.herokuapp.com/
+[React Site](https://jfull-hw5.herokuapp.com/)
+[API Site](https://jfull-api.herokuapp.com/)
