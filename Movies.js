@@ -11,6 +11,7 @@ try {
 }
 
 var MovieSchema = new Schema({
+    id: {type: int, required: true, index: {unique: true }},
     title: {type: String, required: true, index: {unique: true }},
     year: {type: String},
     genre: {type: String},
