@@ -1,13 +1,13 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var bcrypt = require('bcrypt-nodejs');
-
+require('dotenv').config();
 mongoose.Promise = global.Promise;
 
 //mongoose.connect(process.env.DB, { useNewUrlParser: true });
 try {
     mongoose.connect( process.env.DB, {useNewUrlParser: true, useUnifiedTopology: true}, () =>
-        console.log("connected"));
+        console.log("connected to users"));
 }catch (error) {
     console.log("could not connect");
 }
@@ -38,6 +38,9 @@ UserSchema.pre('save', function(next) {
 UserSchema.methods.comparePassword = function (password, callback) {
     var user = this;
 
+    if(user === null){
+        callback();
+    }
     bcrypt.compare(password, user.password, function(err, isMatch) {
         callback(isMatch);
     })
