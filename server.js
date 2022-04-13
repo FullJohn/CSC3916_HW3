@@ -13,6 +13,7 @@ var jwt = require('jsonwebtoken');
 var cors = require('cors');
 var User = require('./Users');
 var Movie = require('./Movies');
+var Review = require('./Reviews')
 require("dotenv").config();
 var app = express();
 app.use(cors());
@@ -138,7 +139,7 @@ router.route('/movies')
         }
     })
     .get(authJwtController.isAuthenticated, function(req, res) {
-
+        
         if(!req.body.title){
             Movie.find({}, function(err,movies){
                 if(err) throw err;
@@ -147,9 +148,20 @@ router.route('/movies')
             });
         }
         else{
-            Movie.findOne({title: req.body.title}, function(err, movie){
-                res.json({success: true, query: movie});
-            });
+            if(req.body.reviews==='true'){
+                var req_reviews;
+                Review.find({title: req.body.title}, function(err, reviews){
+                    req_reviews = reviews;
+                })
+                Movie.findOne({title: req.body.title}, function(err, movie){
+                    res.json({sucess: true, movie: movie, reviews: req_reviews})
+                })
+            }
+            else{
+                Movie.findOne({title: req.body.title}, function(err, movie){
+                    res.json({success: true, query: movie, reviews: req.body.reviews});
+                });
+            }
         }
     })
     .delete(authJwtController.isAuthenticated, function(req, res) {
@@ -175,12 +187,61 @@ router.route('/movies')
                 year: req.body.year,
                 genre: req.body.genre, 
                 actors: req.body.actors
+        
             };
             Movie.findOneAndUpdate({title: req.body.title}, update, function(err, movie){
                 if(err) throw err;
                 res.json({success: true, msg: "Movie updated", query: movie})
             })
         }
+    })
+    .patch(authJwtController.isAuthenticated, function(req, res) {
+        res.json({msg: "Does not support the 'PATCH' method"});
+    });
+
+
+// '/reviews' methods
+router.route('/reviews')
+    .post(authJwtController.isAuthenticated, function(req, res) {
+        if (!req.body.title || !req.body.quote || !req.body.rating) {
+            res.json({success: false, msg: 'Please fill out all of the forms'})
+        }
+        if(req.body.rating > 5 || req.body.rating < 1){
+            res.json({success: false, msg: "Enter a rating between 1 and 5"})
+        }
+        else{
+            Movie.findOne({title: req.body.title}, function(err, movie){
+                if(movie == null){
+                    res.json({success: false, msg:"No movie with that title in database.", query: movie});
+                }
+                else{
+                    var review = new Review();
+                
+                    //authJwtController.passport
+                    review.user = req.headers.authorization.split(" ")[1].split('.')[0]
+                    review.title = req.body.title
+                    review.quote = req.body.quote
+                    review.rating = req.body.rating
+                    review.save(function(err){
+                        res.json({success: true, msg: 'Successfully added review.'})
+                    });
+                }
+            })      
+        }
+    })
+    .get(authJwtController.isAuthenticated, function(req, res) {
+        // Get all reviews from a specific user
+        var req_user = req.headers.authorization.split(" ")[1].split('.')[0]
+        Review.find({user: req_user}, function(err, reviews){
+            res.json({success: true, query: reviews})
+        })
+    })
+    .delete(authJwtController.isAuthenticated, function(req, res) {
+        res.json({msg: "Does not support the 'DELETE' method"});
+        
+    })
+    .put(authJwtController.isAuthenticated, function(req, res){
+        res.json({msg: "Does not support the 'PUT' method"});
     })
     .patch(authJwtController.isAuthenticated, function(req, res) {
         res.json({msg: "Does not support the 'PATCH' method"});
